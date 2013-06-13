@@ -19,8 +19,7 @@ type Guts struct {
 }
 
 // Break down a type and create a Gut
-func Gut(v interface{}) Guts {
-	var g Guts
+func Gut(v interface{}) (g Guts) {
 	var data interface{}
 	var val, pval reflect.Value
 
