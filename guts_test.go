@@ -129,11 +129,12 @@ type T struct {
 	A, B int
 	C    *int
 	D    string
+	e string
 }
 
 func TestStruct(t *testing.T) {
 	a := 3
-	v := T{1, 3, &a, "Hello"}
+	v := T{1, 3, &a, "Hello", "Hidden"}
 	g := Gut(&v)
 
 	if _, err := json.Marshal(g); err != nil {
@@ -147,6 +148,10 @@ func TestStruct(t *testing.T) {
 
 	if _, ok := m["A"]; !ok {
 		t.Fatal("Guts map should have key string for struct fields")
+	}
+
+	if _, ok := m["e"]; ok {
+		t.Fatal("Unexported fields should not be present in result")
 	}
 
 }

@@ -20,32 +20,28 @@ type Guts struct {
 
 // Break down a type and create a Gut
 func Gut(v interface{}) (g Guts) {
-	var data interface{}
 	var val, pval reflect.Value
+	defer func() { recover() }()
 
 	val = reflect.ValueOf(v)
 	pval = val
-
 	for pval.Kind() == reflect.Ptr {
 		pval = pval.Elem()
 	}
 
-	defer func() { recover() }()
-
 	switch pval.Kind() {
 	case reflect.Slice:
-		data = GutSlice(pval)
+		g.Data = GutSlice(pval)
 	case reflect.Map:
-		data = GutMap(pval)
+		g.Data = GutMap(pval)
 	case reflect.Struct:
-		data = GutStruct(pval)
+		g.Data = GutStruct(pval)
 	default:
-		data = v
+		g.Data = v
 	}
 
 	g.Kind = pval.Kind().String()
 	g.Type = val.Type().String()
-	g.Data = data
 	g.Id = val.Pointer()
 	return g
 }
@@ -53,9 +49,12 @@ func Gut(v interface{}) (g Guts) {
 // Gut each field in a struct and rebuild as a map
 func GutStruct(v reflect.Value) map[string]Guts {
 	gm := make(map[string]Guts)
+	vt := v.Type()
 
 	for i := 0; i < v.NumField(); i++ {
-		gm[v.Type().Field(i).Name] = Gut(v.Field(i).Interface())
+		if vt.Field(i).PkgPath == "" {
+			gm[vt.Field(i).Name] = Gut(v.Field(i).Interface())
+		}
 	}
 	return gm
 }
