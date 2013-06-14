@@ -129,7 +129,7 @@ type T struct {
 	A, B int
 	C    *int
 	D    string
-	e string
+	e    string
 }
 
 func TestStruct(t *testing.T) {
